@@ -181,7 +181,7 @@
             const energySlider = document.getElementById('energy');
             const energyValue = document.getElementById('energyValue');
             
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzz8sC0XfUHu6IKvuS9IBi7Uwlc36wVvfQUhOYF3EVHjLua68mIhkUF-M9AdbPGC91V/exec'; // Replace with your actual script URL
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxIEillZ24Lg2L_8neq7vRkYwVYT0W-ScwZhS4BFFv69zCDAdwBwJ9Zc-1hHjxwHAN5/exec'; // Replace with your actual script URL
             
             // Update the displayed values when sliders move
             sleepSlider.oninput = function() {
@@ -232,19 +232,33 @@
             async function fetchStats() {
                 console.log('Fetching stats...');
                 try {
-                    const response = await fetch(scriptURL, {
-                        mode: 'no-cors'
-                    });
+                    const response = await fetch(scriptURL);
+                    const data = await response.json();
+                    console.log('Received stats:', data);
                     
-                    // Since we're using no-cors, we'll need to trust that the data is there
-                    // Update the display with placeholder values for now
-                    document.getElementById('avgSleep').textContent = '-';
-                    document.getElementById('avgEnergy').textContent = '-';
-                    document.getElementById('totalAlc').textContent = '0';
+                    // Update summary stats
+                    document.getElementById('avgSleep').textContent = data.averageSleep;
+                    document.getElementById('avgEnergy').textContent = data.averageEnergy;
+                    document.getElementById('totalAlc').textContent = data.totalAlc;
+                    
+                    // Update recent entries table
+                    const tbody = document.getElementById('recentEntriesBody');
+                    tbody.innerHTML = data.recentEntries.map(entry => `
+                        <tr>
+                            <td>${entry.date}</td>
+                            <td>${entry.sleep}</td>
+                            <td>${entry.energy}</td>
+                            <td>${entry.alc}</td>
+                        </tr>
+                    `).join('');
                     
                     console.log('Stats display updated');
                 } catch (error) {
                     console.error('Error fetching stats:', error);
+                    // Set default values if fetch fails
+                    document.getElementById('avgSleep').textContent = '-';
+                    document.getElementById('avgEnergy').textContent = '-';
+                    document.getElementById('totalAlc').textContent = '0';
                 }
             }
             
