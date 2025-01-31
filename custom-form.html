@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Feedback Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .slider {
+            width: 100%;
+        }
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .value-display {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Feedback Form</h1>
+    <form id="feedbackForm">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required style="width: 100%; padding: 8px;">
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required style="width: 100%; padding: 8px;">
+        </div>
+        
+        <div class="form-group">
+            <label>How would you rate your experience?</label>
+            <div class="slider-container">
+                <input type="range" id="rating" name="rating" min="1" max="10" value="5" class="slider">
+                <div class="slider-labels">
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>5</span>
+                    <span>6</span>
+                    <span>7</span>
+                    <span>8</span>
+                    <span>9</span>
+                    <span>10</span>
+                </div>
+                <div class="value-display">Selected value: <span id="ratingValue">5</span></div>
+            </div>
+        </div>
+        
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        const slider = document.getElementById('rating');
+        const ratingValue = document.getElementById('ratingValue');
+        const form = document.getElementById('feedbackForm');
+
+        // Update the displayed value when slider moves
+        slider.oninput = function() {
+            ratingValue.textContent = this.value;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                rating: document.getElementById('rating').value,
+                timestamp: new Date().toISOString()
+            };
+
+            // Replace this URL with your Google Apps Script Web App URL
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxLeo-pDAEljMoEsRhFcS17Kv3Lkluu7M_pFocLjrhrxZcTPp8smrA3nNH2NgTshMbp/exec';
+
+            try {
+                const response = await fetch(scriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                alert('Thank you for your feedback!');
+                form.reset();
+                ratingValue.textContent = '5';
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
