@@ -125,8 +125,11 @@
             };
 
             // Replace this URL with your Google Apps Script Web App URL
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbx0Ej5JBSi2tPyh6Gd2Ox57nZ4Cpu5EsBVoMOTobhE2o1c4H7CCScwuxC_mNipvEOST/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyCAEKUP1sVd1DWTi-XKIZ8OwnwXoefIPyATP5eroychdRtywm7AKlTcBY7f-e6N2kU/exec';
 
+            console.log('Sending data:', formData);
+            console.log('To URL:', scriptURL);
+            
             try {
                 const response = await fetch(scriptURL, {
                     method: 'POST',
