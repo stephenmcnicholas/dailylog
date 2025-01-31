@@ -52,8 +52,6 @@
             padding: 8px;
             font-size: 16px;
         }
-    </style>
-    <style>
         .stats-container {
             margin-top: 40px;
             padding: 20px;
@@ -93,6 +91,104 @@
             background-color: #f0f0f0;
         }
     </style>
+    <script>
+        // Wait for DOM to be ready
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded');
+            
+            // Get DOM elements
+            const form = document.getElementById('wellnessForm');
+            const sleepSlider = document.getElementById('sleep');
+            const sleepValue = document.getElementById('sleepValue');
+            const energySlider = document.getElementById('energy');
+            const energyValue = document.getElementById('energyValue');
+            
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzz8sC0XfUHu6IKvuS9IBi7Uwlc36wVvfQUhOYF3EVHjLua68mIhkUF-M9AdbPGC91V/exec'; // Replace with your actual script URL
+            
+            // Update the displayed values when sliders move
+            sleepSlider.oninput = function() {
+                sleepValue.textContent = this.value;
+            }
+            
+            energySlider.oninput = function() {
+                energyValue.textContent = this.value;
+            }
+            
+            // Form submission handler
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                console.log('Form submitted');
+                
+                const formData = {
+                    sleep: document.getElementById('sleep').value,
+                    energy: document.getElementById('energy').value,
+                    alc: document.getElementById('alc').value,
+                    timestamp: new Date().toISOString()
+                };
+                
+                console.log('Sending data:', formData);
+                
+                try {
+                    const response = await fetch(scriptURL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    console.log('Response status:', response.status);
+                    
+                    if (response.ok) {
+                        alert('Form submitted successfully!');
+                        form.reset();
+                        sleepValue.textContent = '7';
+                        energyValue.textContent = '3';
+                        fetchStats(); // Refresh stats after successful submission
+                    } else {
+                        throw new Error('Network response was not ok: ' + response.status);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again. Error: ' + error.message);
+                }
+            });
+            
+            // Function to fetch and display stats
+            async function fetchStats() {
+                console.log('Fetching stats...');
+                try {
+                    const response = await fetch(scriptURL);
+                    const data = await response.json();
+                    console.log('Received stats data:', data);
+                    
+                    // Update stats display
+                    document.getElementById('avgSleep').textContent = data.averageSleep || '-';
+                    document.getElementById('avgEnergy').textContent = data.averageEnergy || '-';
+                    document.getElementById('totalAlc').textContent = data.totalAlc || '0';
+                    
+                    // Update recent entries table
+                    const tbody = document.getElementById('recentEntriesBody');
+                    tbody.innerHTML = (data.recentEntries || []).map(entry => `
+                        <tr>
+                            <td>${entry.date}</td>
+                            <td>${entry.sleep}</td>
+                            <td>${entry.energy}</td>
+                            <td>${entry.alc}</td>
+                        </tr>
+                    `).join('');
+                    
+                    console.log('Stats display updated');
+                } catch (error) {
+                    console.error('Error fetching stats:', error);
+                }
+            }
+            
+            // Fetch stats immediately
+            console.log('Initial stats fetch...');
+            fetchStats();
+        });
+    </script>
 </head>
 <body>
     <h1>How are you today?</h1>
@@ -170,58 +266,5 @@
             </table>
         </div>
     </div>
-
-    <script>
-        const sleepSlider = document.getElementById('sleep');
-        const sleepValue = document.getElementById('sleepValue');
-        const energySlider = document.getElementById('energy');
-        const energyValue = document.getElementById('energyValue');
-        const form = document.getElementById('wellnessForm');
-
-        // Update the displayed values when sliders move
-        sleepSlider.oninput = function() {
-            sleepValue.textContent = this.value;
-        }
-
-        energySlider.oninput = function() {
-            energyValue.textContent = this.value;
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = {
-                sleep: document.getElementById('sleep').value,
-                energy: document.getElementById('energy').value,
-                alc: document.getElementById('alc').value,
-                timestamp: new Date().toISOString()
-            };
-
-            // Replace this URL with your Google Apps Script Web App URL
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbzz8sC0XfUHu6IKvuS9IBi7Uwlc36wVvfQUhOYF3EVHjLua68mIhkUF-M9AdbPGC91V/exec';
-
-            console.log('Sending data:', formData);
-            console.log('To URL:', scriptURL);
-            
-            try {
-                const response = await fetch(scriptURL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                alert('Form submitted successfully!');
-                form.reset();
-                sleepValue.textContent = '7';
-                energyValue.textContent = '3';
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
-            }
-        });
-    </script>
 </body>
 </html>
