@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Feedback Form</title>
+    <title>Daily Wellness Tracker</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,11 +12,12 @@
             padding: 20px;
         }
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
         label {
             display: block;
             margin-bottom: 10px;
+            font-weight: bold;
         }
         .slider-container {
             display: flex;
@@ -46,28 +47,21 @@
         .value-display {
             font-weight: bold;
         }
+        input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
-    <h1>Feedback Form</h1>
-    <form id="feedbackForm">
+    <h1>How are you today?</h1>
+    <form id="wellnessForm">
         <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required style="width: 100%; padding: 8px;">
-        </div>
-        
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required style="width: 100%; padding: 8px;">
-        </div>
-        
-        <div class="form-group">
-            <label>How would you rate your experience?</label>
+            <label>Sleep</label>
             <div class="slider-container">
-                <input type="range" id="rating" name="rating" min="1" max="10" value="5" class="slider">
+                <input type="range" id="sleep" name="sleep" min="3" max="10" step="0.5" value="7" class="slider">
                 <div class="slider-labels">
-                    <span>1</span>
-                    <span>2</span>
                     <span>3</span>
                     <span>4</span>
                     <span>5</span>
@@ -77,35 +71,61 @@
                     <span>9</span>
                     <span>10</span>
                 </div>
-                <div class="value-display">Selected value: <span id="ratingValue">5</span></div>
+                <div class="value-display">Selected value: <span id="sleepValue">7</span></div>
             </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Energy</label>
+            <div class="slider-container">
+                <input type="range" id="energy" name="energy" min="1" max="5" value="3" class="slider">
+                <div class="slider-labels">
+                    <span>1</span>
+                    <span>2</span>
+                    <span>3</span>
+                    <span>4</span>
+                    <span>5</span>
+                </div>
+                <div class="value-display">Selected value: <span id="energyValue">3</span></div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="alc">Alc</label>
+            <input type="number" id="alc" name="alc" value="0" min="0" step="1">
         </div>
         
         <button type="submit">Submit</button>
     </form>
 
     <script>
-        const slider = document.getElementById('rating');
-        const ratingValue = document.getElementById('ratingValue');
-        const form = document.getElementById('feedbackForm');
+        const sleepSlider = document.getElementById('sleep');
+        const sleepValue = document.getElementById('sleepValue');
+        const energySlider = document.getElementById('energy');
+        const energyValue = document.getElementById('energyValue');
+        const form = document.getElementById('wellnessForm');
 
-        // Update the displayed value when slider moves
-        slider.oninput = function() {
-            ratingValue.textContent = this.value;
+        // Update the displayed values when sliders move
+        sleepSlider.oninput = function() {
+            sleepValue.textContent = this.value;
+        }
+
+        energySlider.oninput = function() {
+            energyValue.textContent = this.value;
         }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                rating: document.getElementById('rating').value,
+                sleep: document.getElementById('sleep').value,
+                energy: document.getElementById('energy').value,
+                alc: document.getElementById('alc').value,
                 timestamp: new Date().toISOString()
             };
 
             // Replace this URL with your Google Apps Script Web App URL
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxLeo-pDAEljMoEsRhFcS17Kv3Lkluu7M_pFocLjrhrxZcTPp8smrA3nNH2NgTshMbp/exec';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwQV7FQ4Gcb3OIXzPCygYo7D-410DuKYEmwTm_tZrR66Lf74xb5rh2sR8v0WXNHmAA/exec';
 
             try {
                 const response = await fetch(scriptURL, {
@@ -117,9 +137,10 @@
                     body: JSON.stringify(formData)
                 });
                 
-                alert('Thank you for your feedback!');
+                alert('Form submitted successfully!');
                 form.reset();
-                ratingValue.textContent = '5';
+                sleepValue.textContent = '7';
+                energyValue.textContent = '3';
             } catch (error) {
                 console.error('Error:', error);
                 alert('An error occurred. Please try again.');
